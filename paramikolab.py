@@ -3,7 +3,10 @@ import time
 
 devices = {
     "S0": "172.31.4.2",
+    "S1": "172.31.4.3",
     "R0": "172.31.4.1",
+    "R1": "172.31.4.6",
+    "R2": "172.31.4.9"
 }
 
 private_key = paramiko.RSAKey.from_private_key_file("C:/Users/LAB306_XX/.ssh/id_rsa")
@@ -65,7 +68,8 @@ def ssh_connect(hostname, username='admin'):
 
         stdin, stdout, stderr = client.exec_command("show version")
         print(f"\n=== {hostname} ===")
-        print(stdout.read().decode())
+        print(f"Connect to {hostname} success!!!")
+        # print(stdout.read().decode())
 
     except Exception as e:
         print(f"[!] Failed to connect to {hostname}: {e}")
@@ -73,6 +77,6 @@ def ssh_connect(hostname, username='admin'):
         client.close()
 
 
-# for name, ip in devices.items():
-#     ssh_connect(ip)
-backup_running_config(devices["R0"], "R0")
+for name, ip in devices.items():
+    ssh_connect(ip)
+# backup_running_config(devices["R0"], "R0")
