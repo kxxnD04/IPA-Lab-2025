@@ -7,31 +7,43 @@
 * purposes is expressly prohibited except as otherwise authorized by     *
 * Cisco in writing.                                                      *
 **************************************************************************
-R0#terminal length 0
-R0#enable
-R0#cisco
-Translating "cisco"...domain server (10.30.6.1)
- (10.30.6.1)
-Translating "cisco"...domain server (10.30.6.1)
+R2#terminal length 0
+R2#enable
+R2#cisco
+Translating "cisco"...domain server (8.8.8.8)
+ (8.8.8.8)
+Translating "cisco"...domain server (8.8.8.8)
 
 % Bad IP address or host name
 % Unknown command or computer name, or unable to find computer address
-R0#show running-config
+R2#show running-config
 Building configuration...
 
   
-Current configuration : 3452 bytes
+Current configuration : 3833 bytes
+!
+! Last configuration change at 09:36:10 UTC Tue Jul 29 2025
 !
 version 15.7
 service timestamps debug datetime msec
 service timestamps log datetime msec
 no service password-encryption
 !
-hostname R0
+hostname R2
 !
 boot-start-marker
 boot-end-marker
 !
+!
+vrf definition control-data
+ !
+ address-family ipv4
+ exit-address-family
+!
+vrf definition management
+ !
+ address-family ipv4
+ exit-address-family
 !
 !
 no aaa new-model
@@ -55,9 +67,7 @@ no ip icmp rate-limit unreachable
 !
 !
 ip domain name ipa.com
-ip name-server 10.30.6.1
 ip name-server 8.8.8.8
-ip name-server 1.1.1.1
 ip cef
 no ipv6 cef
 !
@@ -87,37 +97,40 @@ ip tcp synwait-time 5
 !
 !
 interface GigabitEthernet0/0
- ip address dhcp
+ vrf forwarding management
+ ip address 172.31.4.9 255.255.255.240
  duplex auto
  speed auto
  media-type rj45
 !
 interface GigabitEthernet0/1
- ip address 172.31.4.1 255.255.255.240
+ vrf forwarding control-data
+ ip address 172.31.4.34 255.255.255.240
  duplex auto
  speed auto
  media-type rj45
 !
 interface GigabitEthernet0/2
- no ip address
- shutdown
+ vrf forwarding control-data
+ ip address 172.31.4.10 255.255.255.240
  duplex auto
  speed auto
  media-type rj45
 !
 interface GigabitEthernet0/3
- no ip address
- shutdown
+ ip address dhcp
  duplex auto
  speed auto
  media-type rj45
 !
+ip default-gateway 172.31.4.1
 ip forward-protocol nd
 !
 !
 no ip http server
 no ip http secure-server
-ip route 0.0.0.0 0.0.0.0 10.30.6.1
+ip route vrf control-data 0.0.0.0 0.0.0.0 192.168.133.254
+ip route vrf management 0.0.0.0 0.0.0.0 172.31.4.1
 ip ssh version 2
 ip ssh pubkey-chain
   username admin
@@ -175,4 +188,4 @@ no scheduler allocate
 !
 end
 
-R0#
+R2#
