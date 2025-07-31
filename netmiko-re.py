@@ -39,41 +39,48 @@ BASE_PARAMS = {
     },
 }
 
-# Improved regex: Match interface that is up/up and extract name + "Last input"
+# Regex patterns
 interface_block_pattern = re.compile(
-    r"^(?P<name>\S+) is up, line protocol is up.*?(?=^\S+ is|\Z)",  # Each interface block
+    r"^(?P<name>\S+) is up, line protocol is up.*?(?=^\S+ is|\Z)",
     re.DOTALL | re.MULTILINE
 )
 
-last_input_pattern = re.compile(
-    r"Last input\s+(?P<last_input>[\w\d:]+)", re.IGNORECASE
+uptime_pattern = re.compile(
+    r"(?P<hostname>\S+) uptime is (?P<uptime>.+)"
 )
 
-def check_active_interfaces(name, ip):
-    print(f"\nConnecting and Checking On {name} ({ip})...")
+def check_active_interfaces_and_uptime(name, ip):
+    print(f"\n Connecting to {name} ({ip})...")
     params = BASE_PARAMS.copy()
     params["ip"] = ip
     conn = ConnectHandler(**params)
     conn.enable()
 
-    output = conn.send_command("show interfaces")
-    matches = interface_block_pattern.findall(output)
+    # Check active interfaces from "show interfaces"
+    interfaces_output = conn.send_command("show interfaces")
+    matches = interface_block_pattern.findall(interfaces_output)
 
     if matches:
-        print(f" Active interfaces on {name}:")
-        for match in interface_block_pattern.finditer(output):
+        print(f">>> Active interfaces on {name}:")
+        for match in interface_block_pattern.finditer(interfaces_output):
             intf_name = match.group("name")
-            block = match.group(0)
-            last_input_match = last_input_pattern.search(block)
-            last_input = last_input_match.group("last_input") if last_input_match else "N/A"
-            print(f" - {intf_name:<20} Uptime: {last_input}")
+            print(f" - {intf_name:<20}")
     else:
-        print(f" No active interfaces found on {name}.")
+        print(f" !!! No active interfaces found on {name}")
+
+    # Check uptime from "show version"
+    version_output = conn.send_command("show version")
+    uptime_match = uptime_pattern.search(version_output)
+    if uptime_match:
+        uptime = uptime_match.group("uptime")
+        print(f">>> {name} uptime: {uptime}")
+    else:
+        print(f"!!! Could not find uptime for {name}")
 
     conn.disconnect()
 
-# Main loop
+# === Main Execution ===
 for name, ip in devices.items():
-    check_active_interfaces(name, ip)
+    check_active_interfaces_and_uptime(name, ip)
 
-print("\n[🏁] Done checking all routers.")
+print("\n[🏁] All routers checked.")
