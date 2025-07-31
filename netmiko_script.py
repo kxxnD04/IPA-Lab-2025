@@ -96,6 +96,8 @@ def configure_router(name, conn):
             "ip nat inside",
             "interface GigabitEthernet0/3",
             "ip nat outside",
+            "vrf forwarding control-data",
+            "ip add dhcp",
             "interface GigabitEthernet0/1",
             "ip nat inside"
         ]

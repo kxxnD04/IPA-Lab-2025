@@ -8,14 +8,6 @@
 * Cisco in writing.                                                      *
 **************************************************************************
 R0#terminal length 0
-R0#enable
-R0#cisco
-Translating "cisco"...domain server (10.30.6.1)
- (10.30.6.1)
-Translating "cisco"...domain server (10.30.6.1)
-
-% Bad IP address or host name
-% Unknown command or computer name, or unable to find computer address
 R0#show running-config
 Building configuration...
 
