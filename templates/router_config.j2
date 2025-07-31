@@ -1,0 +1,32 @@
+ip access-list standard MGMT-ONLY
+ permit 172.31.4.0 0.0.0.255
+ permit 10.30.6.0 0.0.0.255
+line vty 0 4
+ access-class MGMT-ONLY in
+
+interface Loopback0
+ vrf forwarding control-data
+ ip address {{ loopback_ip }} 255.255.255.255
+
+router ospf 1 vrf control-data
+{% for net in ospf_networks %}
+ network {{ net }} area 0
+{% endfor %}
+{% if default_originate %}
+ default-information originate
+{% endif %}
+
+{% if is_r2 %}
+ip access-list standard NAT-CONTROL
+ permit 172.31.4.0 0.0.0.15
+exit
+ip nat inside source list NAT-CONTROL interface GigabitEthernet0/3 overload
+interface GigabitEthernet0/2
+ ip nat inside
+interface GigabitEthernet0/3
+ ip nat outside
+ vrf forwarding control-data
+ ip add dhcp
+interface GigabitEthernet0/1
+ ip nat inside
+{% endif %}

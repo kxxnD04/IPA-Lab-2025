@@ -1,0 +1,14 @@
+vlan 101
+name CONTROL-DATA
+interface g0/1
+ switchport access vlan 101
+ switchport mode access
+interface g0/2
+ switchport access vlan 101
+ switchport mode access
+exit
+ip access-list standard MGMT-ONLY
+ permit 172.31.4.0 0.0.0.255
+ permit 10.30.6.0 0.0.0.255
+line vty 0 4
+ access-class MGMT-ONLY in

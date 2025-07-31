@@ -1,0 +1,14 @@
+credentials:
+  username: admin
+  private_key: "C:/Users/LAB306_XX/.ssh/id_rsa"
+
+devices:
+  S1:
+    ip: 172.31.4.3
+    type: switch
+  R1:
+    ip: 172.31.4.6
+    type: router
+  R2:
+    ip: 172.31.4.9
+    type: router
